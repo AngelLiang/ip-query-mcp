@@ -33,11 +33,9 @@ class IPQueryChat:
             env=None
         )
 
-        stdio_transport = await self.exit_stack.enter_async_context(
-            stdio_client(server_params))
+        stdio_transport = await self.exit_stack.enter_async_context(stdio_client(server_params))
         stdio, write = stdio_transport
-        self.session = await self.exit_stack.enter_async_context(
-            ClientSession(stdio, write))
+        self.session = await self.exit_stack.enter_async_context(ClientSession(stdio, write))
         await self.session.initialize()
 
     async def _get_available_tools(self) -> list[Dict[str, Any]]:
@@ -116,6 +114,7 @@ async def main() -> None:
         await client.chat_loop()
     finally:
         await client.close()
+
 
 if __name__ == "__main__":
     asyncio.run(main())
