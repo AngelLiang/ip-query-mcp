@@ -21,12 +21,8 @@ class IPQueryChat:
             api_key=os.getenv("OPENAI_API_KEY")
         )
         self.model = 'deepseek-chat'
-        self.system_prompt = (
-            "你是一个有帮助的助手。"
-            "如果用户需要查询IP地址信息，请务必调用ip_query工具进行查询，并根据查询结果回答用户。"
-        )
 
-    async def connect_to_server(self) -> None:
+    async def connect_to_mcp(self) -> None:
         server_params = StdioServerParameters(
             command='uv',
             args=['run', 'ip_query_mcp.py'],
@@ -74,10 +70,15 @@ class IPQueryChat:
 
     async def chat(self, question: str) -> str:
         if not self.session:
-            await self.connect_to_server()
+            await self.connect_to_mcp()
+
+        system_prompt = (
+            "你是一个有帮助的助手。"
+            "如果用户需要查询IP地址信息，请务必调用ip_query工具进行查询，并根据查询结果回答用户。"
+        )
 
         messages = [
-            {"role": "system", "content": self.system_prompt},
+            {"role": "system", "content": system_prompt},
             {"role": "user", "content": question}
         ]
 
@@ -110,7 +111,7 @@ class IPQueryChat:
 async def main() -> None:
     client = IPQueryChat()
     try:
-        await client.connect_to_server()
+        await client.connect_to_mcp()
         await client.chat_loop()
     finally:
         await client.close()
